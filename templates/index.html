@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculateur de Gîte</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-xl mx-auto p-6 bg-white shadow-xl rounded-xl mt-10">
+    <h1 class="text-2xl font-bold mb-4">Calculateur de Prix de Location de Gîte</h1>
+    <form action="/calculate" method="post" class="space-y-4">
+      <div>
+        <label for="start_date">Date d'arrivée</label>
+        <input type="date" name="start_date" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="end_date">Date de départ</label>
+        <input type="date" name="end_date" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="people">Nombre de personnes</label>
+        <input type="number" name="people" value="4" min="1" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="cleaning_fee">Frais de ménage (€)</label>
+        <input type="number" step="0.01" name="cleaning_fee" value="50" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="tourist_tax">Taxe de séjour (€)</label>
+        <input type="number" step="0.01" name="tourist_tax" value="20" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Calculer</button>
+    </form>
+  </div>
+</body>
+</html>
