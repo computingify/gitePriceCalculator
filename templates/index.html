@@ -21,15 +21,7 @@
       </div>
       <div>
         <label for="people">Nombre de personnes</label>
-        <input type="number" name="people" value="4" min="1" required class="w-full border px-3 py-2 rounded"/>
-      </div>
-      <div>
-        <label for="cleaning_fee">Frais de ménage (€)</label>
-        <input type="number" step="0.01" name="cleaning_fee" value="50" required class="w-full border px-3 py-2 rounded"/>
-      </div>
-      <div>
-        <label for="tourist_tax">Taxe de séjour (€)</label>
-        <input type="number" step="0.01" name="tourist_tax" value="20" required class="w-full border px-3 py-2 rounded"/>
+        <input type="number" name="people" value="4" min="1" max="15" required class="w-full border px-3 py-2 rounded"/>
       </div>
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Calculer</button>
     </form>

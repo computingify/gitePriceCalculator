@@ -11,9 +11,13 @@
   <div class="max-w-2xl mx-auto p-6 bg-white shadow-xl rounded-xl mt-10">
     <h1 class="text-2xl font-bold mb-4">Détail du calcul</h1>
     <ul class="space-y-1">
+      <li>Nombre de nuits : {{ result.nights }}</li>
       {% for day, period, price in result.detail %}
       <li>{{ day }} - {{ period }} : {{ price }} €</li>
       {% endfor %}
+      <li>Frais de ménage : {{ result.cleaning }} €</li>
+      <li>Assurance : {{ result.insurence }} €</li>
+      <li>Taxe de séjour : {{ result.taxes }} €</li>
     </ul>
     <div class="mt-6 text-xl font-semibold">Total : {{ result.total }} €</div>
     <a href="/" class="inline-block mt-4 text-blue-600 hover:underline">⇦ Revenir</a>
