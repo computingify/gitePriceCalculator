@@ -13,9 +13,11 @@
     <ul class="space-y-1">
       <li>Nombre de nuits : {{ result.nights }}</li>
       <li>Pour : {{ result.adult }} adulte(s), {{ result.children }} enfant(s), {{ result.baby }} bébé(s),</li>
+      <br>
       {% for day, period, price in result.detail %}
       <li>{{ day }} - {{ period }} : {{ price }} €</li>
       {% endfor %}
+      <br>
       <li>Frais de ménage : {{ result.cleaning }} €</li>
       {% if result.is_insurence == False %}
       <li>Caution de 1500€ (option assurance à {{ result.insurence }} €)</li>
@@ -23,9 +25,15 @@
       <li>Assurance annulation et caution: {{ result.insurence }} €</li>
       {% endif %}
       <li>Taxes de séjour : {{ result.taxes }} €</li>
+      {% if result.discount_amount != 0 %}
+      <li class="text-green-600">Dont réduction pour long séjour -{{ result.discount_amount }} €</li>
+      {% endif %}
     </ul>
-    <div class="mt-6 text-xl font-semibold">Total : {{ result.total }} €</div>
-    <li>Prix /pers /nuit : {{ result.peopleNightPrice }} €</li>
+    <br>
+    <h1 class="text-2xl font-bold mb-4">Total à payer : {{ result.total }} €</h1>
+    <ul class="space-y-1">
+      <li>Prix /pers /nuit : {{ result.peopleNightPrice }} €</li>
+    </ul>
     <a href="/" class="inline-block mt-4 text-blue-600 hover:underline">⇦ Revenir</a>
   </div>
 </body>
