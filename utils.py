@@ -10,7 +10,7 @@ def is_may_bridge_day(d: date):
     #     print(date, name)
     for holiday_date, holiday_name in fr_holidays.items():
         if holiday_name in getattr(config, "FRENCH_HOLIDAYS_MEDIUM_PRICE", set()):
-            if d == holiday_date:
+            if d in [holiday_date + timedelta(days=offset) for offset in config.MEDUIM_PRICE_AROUND_HOLIDAYS]:
                 return True
     return False
 
