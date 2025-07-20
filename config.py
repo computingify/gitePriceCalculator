@@ -1,6 +1,4 @@
 
-from datetime import date
-
 PERIOD_PERCENTAGE = {
     "basse": 0,
     "moyenne": 0.16,
@@ -16,6 +14,22 @@ SEASON_PERIODS = {
     ]
 }
 
+# Jours fériés en France où on applique un tarif plus important, doivent être les noms de jours fériés de la lib holidays 
+FRENCH_HOLIDAYS_MEDIUM_PRICE = {
+    # "Jour de l'an",
+    # "Lundi de Pâques",
+    "Lundi de Pentecôte",
+    "Fête du Travail",
+    "Fête de la Victoire",
+    "Ascension",
+    # "Fête nationale",
+    # "Assomption",
+    # "Toussaint",
+    # "Armistice",
+    # "Noël",
+}
+
+# Configuration des prix
 BASE_PRICE_PER_NIGHT = 250 # Prix de base par nuit
 BASE_PEOPLE = 6 # Nombre de personnes inclus dans le tarif de base
 BASE_EXTRA_PERSON_PRICE = 20 # Prix par personne supplémentaire

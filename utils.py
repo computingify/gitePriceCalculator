@@ -1,18 +1,17 @@
 
 from datetime import datetime, timedelta, date
-from types import SimpleNamespace
 import config
+import holidays
 
 def is_may_bridge_day(d: date):
-    if d.month != 5:
-        return False
-    jours_feries = [(5, 1), (5, 8)]
-    if (d.month, d.day) in jours_feries:
-        return True
-    for month, day in jours_feries:
-        jour_ferie = date(d.year, month, day)
-        if jour_ferie.weekday() == 3 and d == jour_ferie + timedelta(days=1):
-            return True
+    
+    fr_holidays = holidays.France(years=d.year)
+    # for date, name in fr_holidays.items():
+    #     print(date, name)
+    for holiday_date, holiday_name in fr_holidays.items():
+        if holiday_name in getattr(config, "FRENCH_HOLIDAYS_MEDIUM_PRICE", set()):
+            if d == holiday_date:
+                return True
     return False
 
 def get_period(d: date):

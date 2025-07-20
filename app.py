@@ -22,6 +22,7 @@ def calculate():
     isInsurence = request.form.get("insurance", "off") == "on"
 
     result = calculate_price(start_date, end_date, people, isInsurence)
+    #print(f"Result: {result}")
     return render_template("result.html", result=result)
 
 if __name__ == "__main__":
