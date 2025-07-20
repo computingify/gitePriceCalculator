@@ -17,12 +17,46 @@
       </div>
       <div>
         <label for="end_date">Date de départ</label>
-        <input type="date" name="end_date" required class="w-full border px-3 py-2 rounded"/>
+        <input type="date" name="end_date" id="end_date" required class="w-full border px-3 py-2 rounded"/>
+        <script>
+          document.querySelector('input[name="start_date"]').addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            if (!isNaN(startDate)) {
+              // Add 1 day
+              const nextDay = new Date(startDate);
+              nextDay.setDate(startDate.getDate() + 1);
+              // Format as yyyy-mm-dd
+              const yyyy = nextDay.getFullYear();
+              const mm = String(nextDay.getMonth() + 1).padStart(2, '0');
+              const dd = String(nextDay.getDate()).padStart(2, '0');
+              const nextDayStr = `${yyyy}-${mm}-${dd}`;
+              document.getElementById('end_date').value = nextDayStr;
+              document.getElementById('end_date').min = nextDayStr;
+            }
+          });
+        </script>
       </div>
       <div>
-        <label for="people">Nombre de personnes</label>
-        <input type="number" name="people" value="4" min="1" max="15" required class="w-full border px-3 py-2 rounded"/>
+        <label class="inline-flex items-center">
+          <input type="checkbox" name="insurance" class="form-checkbox h-5 w-5 text-blue-600">
+          <span class="ml-2">Assurance annulation et caution</span>
+        </label>
       </div>
+      <h2 class="text-1xl font-bold mb-4">Nombre de personnes</h1>
+      <ul class="space-y-1">
+        <div>
+        <label for="adult">Adulte</label>
+        <input type="number" name="adult" value="4" min="1" max="15" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="children">Enfant</label>
+        <input type="number" name="children" value="0" min="0" max="12" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      <div>
+        <label for="baby">Bébé</label>
+        <input type="number" name="baby" value="0" min="0" max="10" required class="w-full border px-3 py-2 rounded"/>
+      </div>
+      </ul>
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Calculer</button>
     </form>
   </div>

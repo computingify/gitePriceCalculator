@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta, date
+from types import SimpleNamespace
 import config
 
 def is_may_bridge_day(d: date):
@@ -27,7 +28,7 @@ def get_period(d: date):
         return "moyenne"
     return "basse"
 
-def calculate_price(start_date_str, end_date_str, people):
+def calculate_price(start_date_str, end_date_str, people, isInsurence=False):
     start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
     end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
     nights = (end_date - start_date).days
@@ -36,12 +37,19 @@ def calculate_price(start_date_str, end_date_str, people):
 
     for i in range(nights):
         day = start_date + timedelta(days=i)
+        discount_percentage = config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS if nights >= 7 else 0
         period = get_period(day)
-        night_price = config.BASE_PRICE_PER_NIGHT * (1 + config.PERIOD_PERCENTAGE[period])
-        extra_people = max(0, people - config.BASE_PEOPLE)
-        price = night_price + extra_people * (config.BASE_EXTRA_PERSON_PRICE * (1 + config.PERIOD_PERCENTAGE[period]))
+        night_price = config.BASE_PRICE_PER_NIGHT * (1 + config.PERIOD_PERCENTAGE[period]) # calculate the price for the night based on the period
+        night_price = night_price * (1 - discount_percentage) # Apply discount for long stays
+        extra_people = max(0, (people.adult + people.children) - config.BASE_PEOPLE)
+        price = round(night_price + extra_people * (config.BASE_EXTRA_PERSON_PRICE * (1 + config.PERIOD_PERCENTAGE[period])))
         total += price
         detail.append((day.strftime('%Y-%m-%d'), period, price))
 
-    total += config.CLEANING_PRICE + (nights * config.INSURENCE_PER_NIGHT) + (people * nights * config.TAXES_PER_PERSON_NIGHT)
-    return {"nights": nights, "detail": detail, "cleaning": config.CLEANING_PRICE, "insurence" : (nights * config.INSURENCE_PER_NIGHT), "taxes" : (people * nights * config.TAXES_PER_PERSON_NIGHT), "total": total}
+    total += config.CLEANING_PRICE + (people.adult * nights * config.TAXES_PER_PERSON_NIGHT)
+    total += nights * config.INSURENCE_PER_NIGHT if isInsurence else 0
+    insurence = nights * config.INSURENCE_PER_NIGHT
+    taxes = people.adult * nights * config.TAXES_PER_PERSON_NIGHT
+    peopleNightPrice = round(total / (nights * (people.adult + people.children)), 2) if (nights * (people.adult + people.children)) > 0 else 0
+    total = round(total, 2)
+    return {"nights": nights, "adult": people.adult, "children": people.children, "baby": people.baby, "detail": detail, "cleaning": config.CLEANING_PRICE, "is_insurence": isInsurence, "insurence": insurence, "taxes": taxes, "total": total, "peopleNightPrice": peopleNightPrice}
