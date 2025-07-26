@@ -2,3 +2,5 @@
 flask
 gunicorn
 holidays
+requests
+ics

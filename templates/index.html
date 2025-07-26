@@ -42,6 +42,12 @@
           <span class="ml-2">Assurance annulation et caution</span>
         </label>
       </div>
+      <div>
+        <label class="inline-flex items-center">
+          <input type="checkbox" name="extraAccess" class="form-checkbox h-5 w-5 text-blue-600">
+          <span class="ml-2">Acces à l'espace Grenier</span>
+        </label>
+      </div>
       <h2 class="text-1xl font-bold mb-4">Nombre de personnes</h1>
       <ul class="space-y-1">
         <div>
@@ -49,16 +55,44 @@
         <input type="number" name="adult" value="6" min="1" max="15" required class="w-full border px-3 py-2 rounded"/>
       </div>
       <div>
-        <label for="children">Enfant</label>
+        <label for="children">Enfant (moins de 18 ans)</label>
         <input type="number" name="children" value="0" min="0" max="12" required class="w-full border px-3 py-2 rounded"/>
       </div>
       <div>
-        <label for="baby">Bébé</label>
+        <label for="baby">Bébé (moins de 12 mois)</label>
         <input type="number" name="baby" value="0" min="0" max="10" required class="w-full border px-3 py-2 rounded"/>
       </div>
       </ul>
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Calculer</button>
     </form>
   </div>
+  <script>
+    // Récupère la liste des dates réservées depuis Flask (injection dans le template)
+    const reservedDates = {{ reserved_dates|tojson }};
+    // Sélecteurs des champs date
+    const startInput = document.querySelector('input[name="start_date"]');
+    const endInput = document.querySelector('input[name="end_date"]');
+
+    function disableReservedDates(input) {
+      input.addEventListener('input', function() {
+        if (reservedDates.includes(this.value)) {
+          alert("Cette date est déjà réservée !");
+          this.value = '';
+        }
+      });
+
+      // Désactive les dates réservées dans le calendrier natif (si supporté)
+      input.addEventListener('focus', function() {
+        this.setAttribute('min', '');
+        this.setAttribute('max', '');
+        // Pour chaque date réservée, crée un élément datalist (pour navigateurs compatibles)
+        // Mais comme <input type="date"> ne supporte pas datalist, on ne peut pas griser les dates,
+        // on peut seulement empêcher la saisie et prévenir l'utilisateur.
+      });
+    }
+
+    disableReservedDates(startInput);
+    disableReservedDates(endInput);
+  </script>
 </body>
 </html>

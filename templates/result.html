@@ -14,19 +14,25 @@
       <li>Nombre de nuits : {{ result.nights }}</li>
       <li>Pour : {{ result.adult }} adulte(s), {{ result.children }} enfant(s), {{ result.baby }} bébé(s),</li>
       <br>
-      {% for day, period, price in result.detail %}
-      <li>{{ day }} - {{ period }} : {{ price }} €</li>
+      {% for day, period, price, note in result.detail %}
+      <li>{{ day }} - {{ period }} : {{ price }} € <span class="text-green-600">{{ note }}</span></li>
       {% endfor %}
       <br>
       <li>Frais de ménage : {{ result.cleaning }} €</li>
+      {% if result.extra_access_amount != 0 %}
+      <li>Accès Grenier {{ result.extra_access_amount }} €</li>
+      {% endif %}
       {% if result.is_insurence == False %}
       <li>Caution de 1500€ (option assurance à {{ result.insurence }} €)</li>
       {% else %}
       <li>Assurance annulation et caution: {{ result.insurence }} €</li>
       {% endif %}
       <li>Taxes de séjour : {{ result.taxes }} €</li>
-      {% if result.discount_amount != 0 %}
-      <li class="text-green-600">Dont réduction pour long séjour -{{ result.discount_amount }} €</li>
+      {% if result.discount_amount_more_days != 0 %}
+      <li class="text-green-600">Dont réduction pour +7 jours -{{ result.discount_amount_more_days }} €</li>
+      {% endif %}
+      {% if result.discount_amount_last_minute != 0 %}
+      <li class="text-green-600">Dont réduction résa dernière minute -{{ result.discount_amount_last_minute }} €</li>
       {% endif %}
     </ul>
     <br>
