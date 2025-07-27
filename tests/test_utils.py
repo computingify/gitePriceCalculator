@@ -182,13 +182,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["moyenne"])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE*(1+utils.config.PERIOD_PERCENTAGE["moyenne"])
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        self.assertEqual(
+            result["total"],
+            nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["moyenne"])
+            + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * (utils.config.BASE_EXTRA_PERSON_PRICE*(1+utils.config.PERIOD_PERCENTAGE["moyenne"]))
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+        )
 
     def test_calculate_price_with_more_people_and_children(self):
         nb_adults = 8
@@ -239,14 +239,24 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        night_extra_people = night + extra_people
+        last_minute = night_extra_people* (1 - utils.config.LAST_MUNITE_DISCOUNT)
+        total_night = last_minute * nb_nights
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+        )
+        
+        self.assertEqual(
+            result["discount_amount_last_minute"],
+            round(night_extra_people * 3 - last_minute * 3, 2)
+        )
 
     def test_calculate_price_last_minutes_4days(self):
         nb_adults = 10
@@ -260,14 +270,19 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        night_extra_people = night + extra_people
+        last_minute = night_extra_people * (1 - utils.config.LAST_MUNITE_DISCOUNT)
+        total_night = last_minute * 3 + night_extra_people
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+        )
         
     def test_calculate_price_more_than_7days(self):
         nb_adults = 10
@@ -281,14 +296,24 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        night_extra_people = night + extra_people
+        seven_days = night_extra_people* (1 - utils.config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS)
+        total_night = night_extra_people * 7 + seven_days * (nb_nights - 7)
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+        )
+        
+        self.assertEqual(
+            result["discount_amount_more_days"],
+            night_extra_people * (nb_nights - 7) - seven_days * (nb_nights - 7)  # Total price without discount - price with discount
+        )
         
     def test_calculate_price_last_minutes_and_more_than_7days(self):
         nb_adults = 10
@@ -302,56 +327,86 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        night_extra_people = night + extra_people
+        
+        seven_days = night_extra_people* (1 - utils.config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS)
+        last_minute = night_extra_people * (1 - utils.config.LAST_MUNITE_DISCOUNT)
+        
+        total_night = last_minute * utils.config.LAST_MINUTES_DAYS + night_extra_people * (7 - utils.config.LAST_MINUTES_DAYS) + seven_days * (nb_nights - 7)
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+        )
+        
+        self.assertEqual(
+            result["discount_amount_more_days"],
+            round(night_extra_people * (nb_nights - 7) - seven_days * (nb_nights - 7), 2)
+        )
+        
+        self.assertEqual(
+            result["discount_amount_last_minute"],
+            round(night_extra_people * 3 - last_minute * 3, 2)
+        )
         
     def test_calculate_price_last_minutes_with_insurence(self):
         nb_adults = 10
-        nb_nights = 4
+        nb_nights = 3
         people = DummyPeople(adult=nb_adults, children=0, baby=0)
         result = utils.calculate_price(
             date.today().strftime('%Y-%m-%d'),
             (date.today() + timedelta(days=nb_nights)).strftime('%Y-%m-%d'),
-            people)
+            people, isInsurence=True)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        night_extra_people = night + extra_people
+        last_minute = night_extra_people* (1 - utils.config.LAST_MUNITE_DISCOUNT)
+        total_night = last_minute * nb_nights
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+            + nb_nights * utils.config.INSURENCE_PER_NIGHT
+        )
         
     def test_calculate_price_last_minutes_with_extra(self):
         nb_adults = 10
-        nb_nights = 10
+        nb_nights = 3
         people = DummyPeople(adult=nb_adults, children=0, baby=0)
         result = utils.calculate_price(
             date.today().strftime('%Y-%m-%d'),
             (date.today() + timedelta(days=nb_nights)).strftime('%Y-%m-%d'),
-            people)
+            people, isExtraAccess=True)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
+        night_extra_people = night + extra_people
+        last_minute = night_extra_people* (1 - utils.config.LAST_MUNITE_DISCOUNT)
+        total_night = last_minute * nb_nights
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+            + nb_nights * utils.config.EXTRA_ACCESS_PRICE
+        )
         
     def test_calculate_price_more_than_7days_with_insurence(self):
         nb_adults = 10
@@ -360,19 +415,26 @@ class TestUtils(unittest.TestCase):
         result = utils.calculate_price(
             "2025-02-01",
             "2025-02-11",
-            people)
+            people,
+            isInsurence=True)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        night_extra_people = night + extra_people
+        seven_days = night_extra_people* (1 - utils.config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS)
+        total_night = night_extra_people * 7 + seven_days * (nb_nights - 7)
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+            + nb_nights * utils.config.INSURENCE_PER_NIGHT
+        )
         
     def test_calculate_price_more_than_7days_with_extra(self):
         nb_adults = 10
@@ -381,19 +443,26 @@ class TestUtils(unittest.TestCase):
         result = utils.calculate_price(
             "2025-02-01",
             "2025-02-11",
-            people)
+            people,
+            isExtraAccess=True)
         self.assertIsInstance(result, dict)
         self.assertEqual(result["nights"], nb_nights)
         self.assertEqual(result["adult"], nb_adults)
         self.assertIn("total", result)
-        # self.assertEqual(
-        #     result["total"],
-        #     (nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE[utils.get_period(date.today())])
-        #     + (nb_adults - utils.config.BASE_PEOPLE) * nb_nights * utils.config.BASE_EXTRA_PERSON_PRICE)
-        #     * (1 - utils.config.LAST_MUNITE_DISCOUNT)
-        #     + utils.config.CLEANING_PRICE
-        #     + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-        # )
+        
+        night = utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        extra_people = (nb_adults - utils.config.BASE_PEOPLE) * utils.config.BASE_EXTRA_PERSON_PRICE *(1+utils.config.PERIOD_PERCENTAGE["basse"])
+        night_extra_people = night + extra_people
+        seven_days = night_extra_people* (1 - utils.config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS)
+        total_night = night_extra_people * 7 + seven_days * (nb_nights - 7)
+        
+        self.assertEqual(
+            result["total"],
+            total_night
+            + utils.config.CLEANING_PRICE
+            + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
+            + nb_nights * utils.config.EXTRA_ACCESS_PRICE
+        )
     
 
 if __name__ == "__main__":

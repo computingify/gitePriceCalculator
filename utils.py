@@ -46,21 +46,24 @@ def calculate_price(start_date_str, end_date_str, people, isInsurence=False, isE
     for i in range(nights):
         note = ""
         day = start_date + timedelta(days=i)
-        discount_percentage = config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS if i >= 7 else 0
         period = get_period(day)
         night_price = config.BASE_PRICE_PER_NIGHT * (1 + config.PERIOD_PERCENTAGE[period]) # calculate the price for the night based on the period
-        discount_amount_more_days += round(night_price * discount_percentage, 2)
-        if discount_percentage > 0:
-            note = f"Réduc +7 nuits (-{round(night_price * discount_percentage, 2)} €)"
-        night_price = night_price * (1- discount_percentage) # Apply discount for long stays
         extra_people = max(0, (people.adult + people.children) - config.BASE_PEOPLE)
-        price = round(night_price + extra_people * (config.BASE_EXTRA_PERSON_PRICE * (1 + config.PERIOD_PERCENTAGE[period])))
-        discount_amount_last_minute += round(price * last_minute_discount(day), 2)
+        price = night_price + extra_people * (config.BASE_EXTRA_PERSON_PRICE * (1 + config.PERIOD_PERCENTAGE[period]))
+        
+        discount_percentage_7d = config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS if i >= 7 else 0
+        discount_amount_more_days += price * discount_percentage_7d
+        if discount_percentage_7d > 0:
+            note = f"Réduc +7 nuits (-{round(price * discount_percentage_7d, 2)} €)"
+        price = price * (1- discount_percentage_7d) # Apply discount for long stays
+        
+        discount_amount_last_minute += price * last_minute_discount(day)
         if last_minute_discount(day) > 0:
             note = f"Réduc dernière minute (-{round(price * last_minute_discount(day), 2)} €)"
         price = price * (1 - last_minute_discount(day))  # Apply last minute discount if applicable
+        
         total += price
-        detail.append((day.strftime('%d-%m-%Y'), period, price, note))
+        detail.append((day.strftime('%d-%m-%Y'), period, round(price, 2), note))
 
     total += config.CLEANING_PRICE + (people.adult * nights * config.TAXES_PER_PERSON_NIGHT)
     total += nights * config.INSURENCE_PER_NIGHT if isInsurence else 0
@@ -68,8 +71,7 @@ def calculate_price(start_date_str, end_date_str, people, isInsurence=False, isE
     total += extra_access_amount
     insurence = nights * config.INSURENCE_PER_NIGHT
     taxes = people.adult * nights * config.TAXES_PER_PERSON_NIGHT
-    peopleNightPrice = round(total / (nights * (people.adult + people.children)), 2) if (nights * (people.adult + people.children)) > 0 else 0
-    total = round(total, 2)
+    peopleNightPrice = total / (nights * (people.adult + people.children)) if (nights * (people.adult + people.children)) > 0 else 0
     return {
         "nights": nights,
         "adult": people.adult,
@@ -77,11 +79,12 @@ def calculate_price(start_date_str, end_date_str, people, isInsurence=False, isE
         "baby": people.baby,
         "detail": detail,
         "cleaning": config.CLEANING_PRICE,
-        "extra_access_amount": extra_access_amount,
+        "extra_access_amount": round(extra_access_amount, 2),
         "is_insurence": isInsurence,
-        "insurence": insurence,
-        "taxes": taxes,
-        "total": total,
-        "discount_amount_more_days": round(discount_amount_more_days),
-        "discount_amount_last_minute": round(discount_amount_last_minute),
-        "peopleNightPrice": peopleNightPrice}
+        "insurence": round(insurence, 2),
+        "taxes": round(taxes, 2),
+        "total": round(total, 2),
+        "discount_amount_more_days": round(discount_amount_more_days, 2),
+        "discount_amount_last_minute": round(discount_amount_last_minute, 2),
+        "peopleNightPrice": round(peopleNightPrice, 2)
+        }
