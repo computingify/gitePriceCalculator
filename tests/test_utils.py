@@ -153,7 +153,7 @@ class TestUtils(unittest.TestCase):
             nb_nights * utils.config.BASE_PRICE_PER_NIGHT*(1+utils.config.PERIOD_PERCENTAGE["basse"])
             + utils.config.CLEANING_PRICE
             + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-            + nb_nights * utils.config.EXTRA_ACCESS_PRICE
+            + utils.config.EXTRA_ACCESS_PRICE
         )
 
     def test_calculate_price_with_more_people(self):
@@ -405,7 +405,7 @@ class TestUtils(unittest.TestCase):
             total_night
             + utils.config.CLEANING_PRICE
             + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-            + nb_nights * utils.config.EXTRA_ACCESS_PRICE
+            + utils.config.EXTRA_ACCESS_PRICE
         )
         
     def test_calculate_price_more_than_7days_with_insurence(self):
@@ -461,7 +461,7 @@ class TestUtils(unittest.TestCase):
             total_night
             + utils.config.CLEANING_PRICE
             + nb_adults * nb_nights * utils.config.TAXES_PER_PERSON_NIGHT
-            + nb_nights * utils.config.EXTRA_ACCESS_PRICE
+            + utils.config.EXTRA_ACCESS_PRICE
         )
     
 

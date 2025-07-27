@@ -2,7 +2,6 @@
 from datetime import datetime, timedelta, date
 import config
 import holidays
-import requests
 from ics import Calendar
 
 def is_may_bridge_day(d: date):
@@ -43,35 +42,52 @@ def calculate_price(start_date_str, end_date_str, people, isInsurence=False, isE
     discount_amount_more_days = 0
     discount_amount_last_minute = 0
 
+    # Compute all the prices day by days
     for i in range(nights):
         note = ""
         day = start_date + timedelta(days=i)
         period = get_period(day)
-        night_price = config.BASE_PRICE_PER_NIGHT * (1 + config.PERIOD_PERCENTAGE[period]) # calculate the price for the night based on the period
+        
+        # Calculate the price for the night based on the period and number of persons
+        night_price = config.BASE_PRICE_PER_NIGHT * (1 + config.PERIOD_PERCENTAGE[period])
         extra_people = max(0, (people.adult + people.children) - config.BASE_PEOPLE)
         price = night_price + extra_people * (config.BASE_EXTRA_PERSON_PRICE * (1 + config.PERIOD_PERCENTAGE[period]))
         
+        # Discounts for long stays
         discount_percentage_7d = config.DISCOUNT_PRICE_MORE_THAN_7_NIGHTS if i >= 7 else 0
         discount_amount_more_days += price * discount_percentage_7d
         if discount_percentage_7d > 0:
             note = f"Réduc +7 nuits (-{round(price * discount_percentage_7d, 2)} €)"
         price = price * (1- discount_percentage_7d) # Apply discount for long stays
         
+        # Discounts for last minute
         discount_amount_last_minute += price * last_minute_discount(day)
         if last_minute_discount(day) > 0:
             note = f"Réduc dernière minute (-{round(price * last_minute_discount(day), 2)} €)"
-        price = price * (1 - last_minute_discount(day))  # Apply last minute discount if applicable
+        price = price * (1 - last_minute_discount(day))  # Apply last minute discount
         
+        # Add to total stay price
         total += price
+        # Add to detail, mostly use by from to show price detail per days
         detail.append((day.strftime('%d-%m-%Y'), period, round(price, 2), note))
 
+    # Cleaning
     total += config.CLEANING_PRICE + (people.adult * nights * config.TAXES_PER_PERSON_NIGHT)
+    # Insurance
     total += nights * config.INSURENCE_PER_NIGHT if isInsurence else 0
-    extra_access_amount = nights * config.EXTRA_ACCESS_PRICE if isExtraAccess else 0
-    total += extra_access_amount
     insurence = nights * config.INSURENCE_PER_NIGHT
+    # Extra Access
+    extra_access_amount = config.EXTRA_ACCESS_PRICE if isExtraAccess else 0
+    
+    # Total calculation
+    total += extra_access_amount
+    
+    # Other computations
+    # Taxes
     taxes = people.adult * nights * config.TAXES_PER_PERSON_NIGHT
+    # Price per person per night
     peopleNightPrice = total / (nights * (people.adult + people.children)) if (nights * (people.adult + people.children)) > 0 else 0
+    
     return {
         "nights": nights,
         "adult": people.adult,
