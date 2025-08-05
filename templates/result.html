@@ -18,7 +18,7 @@
       <li>{{ day }} - {{ period }} : {{ price }} € <span class="text-green-600">{{ note }}</span></li>
       {% endfor %}
       <br>
-      <li>Frais de ménage (60€ lit, 20€ ménage) : {{ result.cleaning }} €</li>
+      <li>Frais de ménage: {{ result.cleaning }} €</li>
       {% if result.extra_access_amount != 0 %}
       <li>Accès Grenier {{ result.extra_access_amount }} €</li>
       {% endif %}

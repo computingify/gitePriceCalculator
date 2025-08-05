@@ -52,7 +52,7 @@
       <ul class="space-y-1">
         <div>
         <label for="adult">Adulte</label>
-        <input type="number" name="adult" value="6" min="1" max="15" required class="w-full border px-3 py-2 rounded"/>
+        <input type="number" name="adult" value="6" min="1" max="50" required class="w-full border px-3 py-2 rounded"/>
       </div>
       <div>
         <label for="children">Enfant (moins de 18 ans)</label>
@@ -66,7 +66,7 @@
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Calculer</button>
     </form>
   </div>
-  <script>
+  <!-- <script>
     // Récupère la liste des dates réservées depuis Flask (injection dans le template)
     const reservedDates = {{ reserved_dates|tojson }};
     // Sélecteurs des champs date
@@ -93,6 +93,6 @@
 
     disableReservedDates(startInput);
     disableReservedDates(endInput);
-  </script>
+  </script> -->
 </body>
 </html>
